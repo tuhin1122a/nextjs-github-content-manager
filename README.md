@@ -40,8 +40,19 @@ A **Next.js app** that fetches Markdown files from GitHub, renders them as HTML,
 ```bash
 git clone https://github.com/<your-username>/nextjs-github-content-manager.git
 cd nextjs-github-content-manager
-**2️⃣ Install dependencies**
+
+
+##2️⃣ Install dependencies
+
+
 npm install
 # or
 yarn install
+
+
+##Setup Environment Variables
+
+GITHUB_TOKEN=your_personal_access_token
+GITHUB_REPO=your-username/your-repo
+GITHUB_BRANCH=main
 
