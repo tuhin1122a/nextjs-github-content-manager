@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 
-const OWNER = "tuhin1122a";
-const REPO = "E-com-Store";
+// GitHub configuration from environment variables
+const OWNER = process.env.NEXT_PUBLIC_GITHUB_OWNER!;
+const REPO = process.env.NEXT_PUBLIC_GITHUB_REPO!;
+const BRANCH = process.env.NEXT_PUBLIC_GITHUB_BRANCH!;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 // GitHub API response type
@@ -23,8 +25,8 @@ export async function GET() {
     );
   }
 
-  const folderPath = "drafts";
-  const URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${folderPath}`;
+  const folderPath = process.env.NEXT_PUBLIC_DRAFTS_PATH || "drafts";
+  const URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${folderPath}?ref=${BRANCH}`;
 
   try {
     const res = await fetch(URL, {

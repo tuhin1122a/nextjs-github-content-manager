@@ -1,46 +1,37 @@
-import { Draft } from "@/types";
+import { Draft, PublishResult } from "@/types";
 import { Octokit } from "@octokit/core";
 import { NextResponse } from "next/server";
 
-// Interface for publishing result of each draft
-interface PublishResult {
-  draft: string;
-  response?: unknown;
-  error?: string;
-}
-
-// GitHub repository configuration
-const OWNER = "tuhin1122a";
-const REPO = "E-com-Store";
-const COMMITTER = { name: "Tuhinur", email: "tuhinrahmna48@gmail.com" };
-const DRAFTS_PATH = "drafts";
+// GitHub configuration from environment variables
+const OWNER = process.env.NEXT_PUBLIC_GITHUB_OWNER!;
+const REPO = process.env.NEXT_PUBLIC_GITHUB_REPO!;
+const BRANCH = process.env.NEXT_PUBLIC_GITHUB_BRANCH!;
+const COMMITTER = {
+  name: process.env.GITHUB_COMMITTER_NAME!,
+  email: process.env.GITHUB_COMMITTER_EMAIL!,
+};
+const DRAFTS_PATH = process.env.NEXT_PUBLIC_DRAFTS_PATH!;
 
 /**
  * Ensures that the drafts folder exists in the repository.
  * If it does not exist, creates a .gitkeep file to initialize the folder.
  */
-async function ensureFolder(octokit: Octokit, branch: string) {
+async function ensureFolder(octokit: Octokit) {
   try {
     await octokit.request(
       "GET /repos/{owner}/{repo}/contents/{path}?ref={branch}",
-      {
-        owner: OWNER,
-        repo: REPO,
-        path: DRAFTS_PATH,
-        branch,
-      }
+      { owner: OWNER, repo: REPO, path: DRAFTS_PATH, branch: BRANCH }
     );
   } catch (err: unknown) {
     const e = err as { status?: number; message?: string };
     if (e.status === 404) {
-      // Folder does not exist; create a .gitkeep file
       await octokit.request("PUT /repos/{owner}/{repo}/contents/{path}", {
         owner: OWNER,
         repo: REPO,
         path: `${DRAFTS_PATH}/.gitkeep`,
         message: "Create drafts folder",
         content: Buffer.from("").toString("base64"),
-        branch,
+        branch: BRANCH,
         committer: COMMITTER,
       });
     } else {
@@ -53,11 +44,11 @@ async function ensureFolder(octokit: Octokit, branch: string) {
  * Retrieves the SHA of a file in the repository if it exists.
  * Returns undefined if the file does not exist.
  */
-async function getFileSha(octokit: Octokit, path: string, branch: string) {
+async function getFileSha(octokit: Octokit, path: string) {
   try {
     const { data } = await octokit.request(
       "GET /repos/{owner}/{repo}/contents/{path}?ref={branch}",
-      { owner: OWNER, repo: REPO, path, branch }
+      { owner: OWNER, repo: REPO, path, branch: BRANCH }
     );
     return (data as { sha: string }).sha;
   } catch (err: unknown) {
@@ -69,12 +60,9 @@ async function getFileSha(octokit: Octokit, path: string, branch: string) {
 
 /**
  * Handles POST requests to publish drafts to GitHub.
- * Accepts an array of Draft objects, creates/updates markdown files in the repository,
- * and returns the result of each draft operation.
  */
 export async function POST(req: Request) {
   try {
-    // Parse request body and validate drafts
     const { drafts }: { drafts: Draft[] } = await req.json();
     if (!drafts?.length)
       return NextResponse.json(
@@ -91,22 +79,10 @@ export async function POST(req: Request) {
 
     const octokit = new Octokit({ auth: token });
 
-    // Retrieve repository information to detect default branch
-    const { data: repoInfo } = await octokit.request(
-      "GET /repos/{owner}/{repo}",
-      {
-        owner: OWNER,
-        repo: REPO,
-      }
-    );
-    const BRANCH = repoInfo.default_branch;
-
-    // Ensure the drafts folder exists before publishing
-    await ensureFolder(octokit, BRANCH);
+    await ensureFolder(octokit);
 
     const results: PublishResult[] = [];
 
-    // Iterate through each draft and publish it
     for (const draft of drafts) {
       if (!draft.title?.trim()) {
         results.push({
@@ -116,7 +92,6 @@ export async function POST(req: Request) {
         continue;
       }
 
-      // Sanitize title for file name
       const safeTitle = draft.title.replace(/[^a-zA-Z0-9-_]/g, "_");
       const path = `${DRAFTS_PATH}/${safeTitle}.md`;
       const content = Buffer.from(`# ${draft.title}\n\n${draft.body}`).toString(
@@ -124,10 +99,8 @@ export async function POST(req: Request) {
       );
 
       try {
-        // Check if file already exists to get SHA for update
-        const sha = await getFileSha(octokit, path, BRANCH);
+        const sha = await getFileSha(octokit, path);
 
-        // Create or update file in the repository
         const res = await octokit.request(
           "PUT /repos/{owner}/{repo}/contents/{path}",
           {

@@ -16,3 +16,8 @@ export interface DraftFormProps {
   onUpdate: (id: string, title: string, body: string) => void;
   onCancel?: () => void; // optional
 }
+export interface PublishResult {
+  draft: string;
+  response?: unknown;
+  error?: string;
+}
