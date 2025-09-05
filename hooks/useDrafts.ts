@@ -8,12 +8,11 @@ const LOCAL_STORAGE_KEY = "markdown_drafts";
 export function useDrafts() {
   const [drafts, setDrafts] = useState<Draft[]>([]);
 
-  // Load drafts from localStorage on initial mount
+  // Load drafts from localStorage on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (stored) {
-        // Safely parse and cast to Draft[]
         const parsed: Draft[] = (JSON.parse(stored) as Draft[]).map((d) => ({
           ...d,
           createdAt: new Date(d.createdAt),
@@ -38,23 +37,20 @@ export function useDrafts() {
       body,
       createdAt: new Date(),
     };
-    setDrafts((prevDrafts) => [...prevDrafts, newDraft]);
+    setDrafts((prev) => [...prev, newDraft]);
   };
 
   const updateDraft = (id: string, title: string, body: string) => {
-    setDrafts((prevDrafts) =>
-      prevDrafts.map((d) => (d.id === id ? { ...d, title, body } : d))
+    setDrafts((prev) =>
+      prev.map((d) => (d.id === id ? { ...d, title, body } : d))
     );
   };
 
   const deleteDraft = (id: string) => {
-    setDrafts((prevDrafts) => prevDrafts.filter((d) => d.id !== id));
+    setDrafts((prev) => prev.filter((d) => d.id !== id));
   };
 
-  const clearAllDrafts = () => {
-    setDrafts([]);
-    // The useEffect above will handle removing from localStorage
-  };
+  const clearAllDrafts = () => setDrafts([]);
 
   return { drafts, addDraft, updateDraft, deleteDraft, clearAllDrafts };
 }

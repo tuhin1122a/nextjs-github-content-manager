@@ -74,7 +74,7 @@ export function PublisherClient({ initialFiles }: PublisherClientProps) {
           editingDraft={editingDraft}
           onAdd={addDraft}
           onUpdate={handleUpdateDraft}
-          onCancel={handleCancelEdit}
+          onCancelEdit={handleCancelEdit} // ✅ Updated prop name
         />
         <LocalDraftsList
           drafts={drafts}

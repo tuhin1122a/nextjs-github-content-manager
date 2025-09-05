@@ -1,18 +1,18 @@
+export interface GitHubFile {
+  name: string;
+  content: string;
+}
+
 export interface Draft {
   id: string;
   title: string;
   body: string;
-  createdAt: Date;
+  createdAt: Date; // ✅ Add this line
 }
 
-export interface GitHubFile {
-  name: string;
-  path: string;
-  sha: string;
-  size: number;
-  url: string;
-  html_url: string;
-  git_url: string;
-  download_url: string | null;
-  type: "file" | "dir";
+export interface DraftFormProps {
+  editingDraft: Draft | null;
+  onAdd: (title: string, body: string) => void;
+  onUpdate: (id: string, title: string, body: string) => void;
+  onCancel?: () => void; // optional
 }

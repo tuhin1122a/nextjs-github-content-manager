@@ -58,7 +58,7 @@ export function GitHubDraftsViewer({
         ) : (
           files.map((file) => (
             <Card
-              key={file.sha}
+              key={file.name}
               className={`${getRandomColor()} border border-gray-200 dark:border-gray-700 rounded-lg shadow-md`}
             >
               <CardHeader>

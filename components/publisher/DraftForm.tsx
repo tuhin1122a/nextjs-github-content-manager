@@ -38,16 +38,16 @@ export function DraftForm({
   }, [editingDraft]);
 
   const handleSubmit = () => {
+    if (!title.trim() || !body.trim()) return; // validation
     if (isEditing && editingDraft) {
-      onUpdate(editingDraft.id, title, body);
+      onUpdate(editingDraft.id, title.trim(), body.trim());
     } else {
-      onAdd(title, body);
+      onAdd(title.trim(), body.trim());
     }
     setTitle("");
     setBody("");
   };
 
-  // 🔹 Common input style
   const inputStyle =
     "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800";
 
