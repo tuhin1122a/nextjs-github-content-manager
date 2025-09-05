@@ -47,6 +47,10 @@ export function DraftForm({
     setBody("");
   };
 
+  // 🔹 Common input style
+  const inputStyle =
+    "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800";
+
   return (
     <Card className="shadow-sm">
       <CardHeader>
@@ -61,6 +65,7 @@ export function DraftForm({
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            className={inputStyle}
           />
         </div>
         <div className="space-y-2">
@@ -69,7 +74,7 @@ export function DraftForm({
             id="body"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            className="min-h-[120px] resize-none"
+            className={`min-h-[120px] resize-none ${inputStyle}`}
           />
         </div>
         <Button

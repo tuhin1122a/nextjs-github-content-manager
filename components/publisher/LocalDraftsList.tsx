@@ -19,6 +19,23 @@ export function LocalDraftsList({
   onPublish,
   isPublishing,
 }: LocalDraftsListProps) {
+  // Soft color palette
+  const colors = [
+    "bg-blue-50 dark:bg-blue-900/40",
+    "bg-green-50 dark:bg-green-900/40",
+    "bg-purple-50 dark:bg-purple-900/40",
+    "bg-pink-50 dark:bg-pink-900/40",
+    "bg-yellow-50 dark:bg-yellow-900/40",
+    "bg-indigo-50 dark:bg-indigo-900/40",
+    "bg-teal-50 dark:bg-teal-900/40",
+  ];
+
+  // Random color generator
+  const getRandomColor = () => {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+  };
+
   return (
     <Card className="shadow-sm">
       <CardHeader>
@@ -27,18 +44,18 @@ export function LocalDraftsList({
       <CardContent className="space-y-3">
         <div className="space-y-3 max-h-[400px] overflow-auto pr-2">
           {drafts.length === 0 ? (
-            <p className="text-center py-8 text-muted-foreground">
-              No drafts yet!
-            </p>
+            <p className="text-center py-8">No drafts yet!</p>
           ) : (
             drafts.map((d) => (
               <div
                 key={d.id}
-                className="border border-border rounded-lg p-4 bg-card/50 flex justify-between items-start gap-2"
+                className={`border border-border rounded-lg p-4 flex justify-between items-start gap-2 shadow-sm ${getRandomColor()}`}
               >
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium truncate">{d.title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <h3 className="font-medium truncate text-gray-800 dark:text-gray-100">
+                    {d.title}
+                  </h3>
+                  <p className="text-sm line-clamp-2">
                     {d.body.substring(0, 100)}
                     {d.body.length > 100 && "..."}
                   </p>

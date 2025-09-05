@@ -1,5 +1,4 @@
 "use client";
-
 import { useDrafts } from "@/hooks/useDrafts";
 import { useGitHubFiles } from "@/hooks/useGitHubFiles";
 import { publishAllDrafts } from "@/lib/api";
@@ -15,12 +14,9 @@ interface PublisherClientProps {
 }
 
 export function PublisherClient({ initialFiles }: PublisherClientProps) {
-  // State for co-ordination between components
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
 
-  // Custom hooks for logic and state management
-  // Pass the server-fetched data to the hook
   const {
     files,
     loading: githubLoading,
@@ -33,12 +29,10 @@ export function PublisherClient({ initialFiles }: PublisherClientProps) {
 
   const handleUpdateDraft = (id: string, title: string, body: string) => {
     updateDraft(id, title, body);
-    setEditingDraftId(null); // Exit editing mode
-  };
-
-  const handleCancelEdit = () => {
     setEditingDraftId(null);
   };
+
+  const handleCancelEdit = () => setEditingDraftId(null);
 
   const handlePublish = async () => {
     if (drafts.length === 0) return alert("No drafts to publish!");
@@ -64,21 +58,24 @@ export function PublisherClient({ initialFiles }: PublisherClientProps) {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <GitHubDraftsViewer
-        files={files}
-        loading={githubLoading}
-        onRefresh={refetch}
-      />
+    <main className="container mx-auto px-4 py-8 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+      {/* Left Column */}
+      <div className="flex flex-col h-full">
+        <GitHubDraftsViewer
+          files={files}
+          loading={githubLoading}
+          onRefresh={refetch}
+        />
+      </div>
 
-      <div className="space-y-6">
+      {/* Right Column */}
+      <div className="flex flex-col gap-6 h-full">
         <DraftForm
           editingDraft={editingDraft}
           onAdd={addDraft}
           onUpdate={handleUpdateDraft}
-          onCancelEdit={handleCancelEdit}
+          onCancel={handleCancelEdit}
         />
-
         <LocalDraftsList
           drafts={drafts}
           onEdit={setEditingDraftId}
