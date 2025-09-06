@@ -24,6 +24,7 @@ export function DraftForm({
 }: DraftFormProps) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [error, setError] = useState("");
 
   const isEditing = !!editingDraft;
 
@@ -35,17 +36,26 @@ export function DraftForm({
       setTitle("");
       setBody("");
     }
+    setError("");
   }, [editingDraft]);
 
-  const handleSubmit = () => {
-    if (!title.trim() || !body.trim()) return; // validation
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+
+    if (!title.trim() || !body.trim()) {
+      setError("Both Title and Body are required");
+      return;
+    }
+
     if (isEditing && editingDraft) {
       onUpdate(editingDraft.id, title.trim(), body.trim());
     } else {
       onAdd(title.trim(), body.trim());
     }
+
     setTitle("");
     setBody("");
+    setError("");
   };
 
   const inputStyle =
@@ -58,39 +68,64 @@ export function DraftForm({
           {isEditing ? "Edit Draft" : "Create New Draft"}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className={inputStyle}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="body">Body</Label>
-          <Textarea
-            id="body"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            className={`min-h-[120px] resize-none ${inputStyle}`}
-          />
-        </div>
-        <Button
-          onClick={handleSubmit}
-          className="w-full gap-2"
-          disabled={!title || !body}
-        >
-          <Plus className="h-4 w-4" />
-          {isEditing ? "Update Draft" : "Add Draft"}
-        </Button>
-        {isEditing && (
-          <Button variant="outline" onClick={onCancelEdit} className="w-full">
-            Cancel Edit
+
+      <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={inputStyle}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault(); // Enter → submit
+                  handleSubmit();
+                }
+              }}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="body">Body</Label>
+            <Textarea
+              id="body"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              className={`min-h-[120px] resize-none ${inputStyle}`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault(); // Enter → submit, new line block
+                  handleSubmit();
+                }
+              }}
+            />
+          </div>
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          <Button
+            type="submit"
+            className="w-full gap-2"
+            disabled={!title && !body}
+          >
+            <Plus className="h-4 w-4" />
+            {isEditing ? "Update Draft" : "Add Draft"}
           </Button>
-        )}
-      </CardContent>
+
+          {isEditing && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancelEdit}
+              className="w-full"
+            >
+              Cancel Edit
+            </Button>
+          )}
+        </CardContent>
+      </form>
     </Card>
   );
 }

@@ -21,3 +21,10 @@ export interface PublishResult {
   response?: unknown;
   error?: string;
 }
+
+export interface DraftFormProps {
+  editingDraft: Draft | null;
+  onAdd: (title: string, body: string) => void;
+  onUpdate: (id: string, title: string, body: string) => void;
+  onCancelEdit: () => void;
+}
