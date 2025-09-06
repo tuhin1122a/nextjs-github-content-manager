@@ -3,7 +3,7 @@ import { useDrafts } from "@/hooks/useDrafts";
 import { useGitHubFiles } from "@/hooks/useGitHubFiles";
 import { publishAllDrafts } from "@/lib/api";
 import { GitHubFile } from "@/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { DraftForm } from "./DraftForm";
 import { GitHubDraftsViewer } from "./GitHubDraftsViewer";
@@ -57,6 +57,17 @@ export function PublisherClient({ initialFiles }: PublisherClientProps) {
     }
   };
 
+  // 🔥 Delete first/top draft on keyboard Delete key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Delete" && drafts.length > 0) {
+        deleteDraft(drafts[0].id);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [drafts, deleteDraft]);
+
   return (
     <main className="container mx-auto px-4 py-8 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
       {/* Left Column */}
@@ -74,7 +85,7 @@ export function PublisherClient({ initialFiles }: PublisherClientProps) {
           editingDraft={editingDraft}
           onAdd={addDraft}
           onUpdate={handleUpdateDraft}
-          onCancelEdit={handleCancelEdit} // ✅ Updated prop name
+          onCancelEdit={handleCancelEdit}
         />
         <LocalDraftsList
           drafts={drafts}
